@@ -6,14 +6,11 @@ const PORT = 8000;
 app.use(express.json());
 
 app.post("/predict", (req, res) => {
+  // Run predict.py which already has hardcoded input
   const py = spawn("python3", ["predict.py"]);
-  const input = JSON.stringify(req.body);
 
   let output = "";
   let errorOutput = "";
-
-  py.stdin.write(input);
-  py.stdin.end();
 
   py.stdout.on("data", (data) => {
     output += data.toString();
@@ -30,7 +27,7 @@ app.post("/predict", (req, res) => {
 
     try {
       const result = JSON.parse(output);
-      res.json("hi ",result);
+      res.json(result); // send back prediction
     } catch (err) {
       console.error("Failed to parse output:", output);
       res.status(500).json({ error: "Failed to parse prediction output" });
