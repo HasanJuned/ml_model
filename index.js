@@ -13,7 +13,7 @@ app.post("/predict", (req, res) => {
     "notebook",
     "--execute",
     "--stdout",
-    "ml_model.ipynb"
+    "ml_model.py"
   ]);
 
   let output = "";

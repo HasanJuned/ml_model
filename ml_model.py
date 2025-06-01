@@ -38,9 +38,7 @@
      ]
     }
    ],
-   "source": [
-    "%pip install xgboost"
-   ]
+   "source": "%pip install xgboost"
   },
   {
    "cell_type": "code",
