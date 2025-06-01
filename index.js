@@ -1,48 +1,44 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const { spawn } = require('child_process');
 
 const app = express();
-app.use(express.json());
+app.use(bodyParser.json());
 
 app.post('/predict', (req, res) => {
-  try {
-    const input = req.body;
-    console.log("Incoming request body:", input);
+  const inputData = req.body;
 
-    const { spawn } = require('child_process');
-    const py = spawn('python3', ['ml_model.py', JSON.stringify(input)]);
+  // Spawn Python process
+  const py = spawn('python3', ['predict.py']);
 
-    let result = '';
-    let errorOutput = '';
+  let dataString = '';
 
-    py.stdout.on('data', (data) => {
-      result += data.toString();
-    });
+  py.stdout.on('data', (data) => {
+    dataString += data.toString();
+  });
 
-    py.stderr.on('data', (data) => {
-      errorOutput += data.toString();
-      console.error(`Python stderr: ${errorOutput}`);
-    });
+  py.stderr.on('data', (data) => {
+    console.error('Python error:', data.toString());
+  });
 
-    py.on('close', (code) => {
-      console.log(`Python script exited with code ${code}`);
-      if (code !== 0) {
-        return res.status(500).json({ error: 'Python script error', stderr: errorOutput });
-      }
-      res.json({ result: result.trim() });
-    });
+  py.on('close', (code) => {
+    if (code !== 0) {
+      return res.status(500).json({ error: 'Python script failed' });
+    }
+    try {
+      const result = JSON.parse(dataString);
+      res.json(result);
+    } catch (e) {
+      res.status(500).json({ error: 'Failed to parse Python output' });
+    }
+  });
 
-    py.on('error', (err) => {
-      console.error("Failed to start Python process:", err);
-      res.status(500).json({ error: 'Failed to run model', details: err.message });
-    });
-  } catch (err) {
-    console.error("Caught exception:", err);
-    res.status(500).json({ error: 'Internal server error', details: err.message });
-  }
+  // Send input JSON to Python stdin
+  py.stdin.write(JSON.stringify(inputData));
+  py.stdin.end();
 });
 
-
-app.listen(8000, () => {
-  console.log('Server running on http://localhost:8000');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Node.js server running on port ${PORT}`);
 });
