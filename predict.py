@@ -7,21 +7,25 @@ import numpy as np
 model = joblib.load("logreg_model.pkl")
 
 try:
+    # Read JSON from stdin
     input_data = json.load(sys.stdin)
 
-    # Maintain correct feature order
-    feature_order = [
-        "age", "sex", "cp", "trestbps", "chol", "fbs",
-        "restecg", "thalach", "exang", "oldpeak", "slope", "ca", "thal"
+    # Feature order (must match training)
+    features = [
+        input_data["age"], input_data["sex"], input_data["cp"],
+        input_data["trestbps"], input_data["chol"], input_data["fbs"],
+        input_data["restecg"], input_data["thalach"], input_data["exang"],
+        input_data["oldpeak"], input_data["slope"], input_data["ca"],
+        input_data["thal"]
     ]
 
-    features = [input_data[feature] for feature in feature_order]
-    features_array = np.array(features).reshape(1, -1)
+    features = np.array(features).reshape(1, -1)
 
-    # Make prediction
-    prediction = model.predict(features_array)[0]
+    # Predict
+    prediction = model.predict(features)
 
-    print(json.dumps({"prediction": int(prediction)}))
+    # Output result
+    print(json.dumps({"prediction": int(prediction[0])}))
 
 except Exception as e:
     print(json.dumps({"error": str(e)}))

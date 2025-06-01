@@ -8,7 +8,9 @@ app.use(express.json());
 app.post("/predict", (req, res) => {
   const py = spawn("python3", ["predict.py"]);
   const input = JSON.stringify(req.body);
+
   let output = "";
+  let errorOutput = "";
 
   py.stdin.write(input);
   py.stdin.end();
@@ -18,16 +20,19 @@ app.post("/predict", (req, res) => {
   });
 
   py.stderr.on("data", (data) => {
-    console.error("Python stderr:", data.toString());
+    errorOutput += data.toString();
   });
 
   py.on("close", (code) => {
-    console.log("Raw Python output:", output);
+    if (errorOutput) {
+      console.error("Python stderr:", errorOutput);
+    }
+
     try {
       const result = JSON.parse(output);
       res.json(result);
     } catch (err) {
-      console.error("Parsing error:", err);
+      console.error("Failed to parse output:", output);
       res.status(500).json({ error: "Failed to parse prediction output" });
     }
   });
