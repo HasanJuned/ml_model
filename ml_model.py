@@ -36,7 +36,7 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 import joblib
 
-df = pd.read_csv('/content/drive/MyDrive/Colab Uploads/3-Senior_Apu_heart.csv')
+df = pd.read_csv('3-Senior_Apu_heart.csv')
 # df = pd.read_csv('3-Senior_Apu_heart.csv')
 # df = df.drop(columns=['id'])  # Drop the 'id' column
 df.head()
