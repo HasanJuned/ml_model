@@ -7,8 +7,8 @@ Original file is located at
     https://colab.research.google.com/drive/1BTYJ1q4cKgMs4oPxUwUhDWI8AiZHVwho
 """
 
-from google.colab import drive
-drive.mount('/content/drive')
+# from google.colab import drive
+# drive.mount('/content/drive')
 
 # Commented out IPython magic to ensure Python compatibility.
 # %pip install xgboost
