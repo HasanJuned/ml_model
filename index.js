@@ -18,8 +18,9 @@ app.post('/predict', (req, res) => {
   });
 
   py.stderr.on('data', (data) => {
-    console.error('Python error:', data.toString());
+    console.error('Python stderr:', data.toString());
   });
+
 
   py.on('close', (code) => {
     if (code !== 0) {
