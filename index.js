@@ -6,7 +6,7 @@ const PORT = 8000;
 app.use(express.json());
 
 app.post("/predict", (req, res) => {
-  const input = JSON.stringify(req.body);
+  const input = JSON.stringify(req.body).replace(/'/g, "\\'");
 
   exec(`python3 predict.py '${input}'`, (error, stdout, stderr) => {
     if (error) {
