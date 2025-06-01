@@ -21,6 +21,7 @@ app.post("/predict", (req, res) => {
   });
 
   py.on("close", (code) => {
+    console.log("Raw Python output:", output);  // 👈 Add this
     try {
       const result = JSON.parse(output);
       res.json(result);
@@ -29,6 +30,7 @@ app.post("/predict", (req, res) => {
       res.status(500).json({ error: "Failed to parse prediction output" });
     }
   });
+
 
   // Send request body to Python via stdin
   py.stdin.write(JSON.stringify(req.body));
