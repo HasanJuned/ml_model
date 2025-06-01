@@ -1,9 +1,9 @@
 # heart_disease_prediction.py
 
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn.feature_selection import SelectKBest, f_classif
+# import matplotlib.pyplot as plt
+# import seaborn as sns
+# from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.svm import SVC
