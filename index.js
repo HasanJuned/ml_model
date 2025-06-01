@@ -5,24 +5,36 @@ const PORT = 8000;
 
 app.use(express.json());
 
+const { spawn } = require("child_process");
+
 app.post("/predict", (req, res) => {
-  const input = JSON.stringify(req.body).replace(/'/g, "\\'");
+  const py = spawn("python3", ["predict.py"]);
 
-  exec(`python3 predict.py '${input}'`, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Exec error: ${error.message}`);
-      return res.status(500).json({ error: "Internal error" });
-    }
+  let output = "";
 
+  py.stdout.on("data", (data) => {
+    output += data.toString();
+  });
+
+  py.stderr.on("data", (data) => {
+    console.error("stderr:", data.toString());
+  });
+
+  py.on("close", (code) => {
     try {
-      const result = JSON.parse(stdout);
+      const result = JSON.parse(output);
       res.json(result);
     } catch (err) {
       console.error("Parsing error:", err);
       res.status(500).json({ error: "Failed to parse prediction output" });
     }
   });
+
+  // Send request body to Python via stdin
+  py.stdin.write(JSON.stringify(req.body));
+  py.stdin.end();
 });
+
 
 app.get("/", (req, res) => {
   res.send("ML API is running!");
