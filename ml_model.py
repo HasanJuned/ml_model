@@ -42,18 +42,21 @@ import json
 # Load the model
 model = joblib.load("logreg_model.pkl")
 
-def predict_heart_disease(input_data: dict):
+def predict_heart_disease(input_data):
+    model = joblib.load("model.pkl")
     df = pd.DataFrame([input_data])
     prediction = model.predict(df)[0]
     return "High risk" if prediction == 1 else "Low risk"
 
 if __name__ == "__main__":
-    # Get JSON string from Node.js
-    json_input = sys.argv[1]
-    input_data = json.loads(json_input)
-
-    result = predict_heart_disease(input_data)
-    print(result)
+    try:
+        json_input = sys.argv[1]
+        input_data = json.loads(json_input)
+        result = predict_heart_disease(input_data)
+        print(result)
+    except Exception as e:
+        print(f"Error: {str(e)}", file=sys.stderr)
+        sys.exit(1)
 
 
 df = pd.read_csv('3-Senior_Apu_heart.csv')
