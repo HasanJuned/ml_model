@@ -3,17 +3,19 @@ import json
 import joblib
 import numpy as np
 
-# Load the trained model
+# Load model
 model = joblib.load("logreg_model.pkl")
 
-# Read JSON input from command line argument
-input_data = json.loads(sys.argv[1])  # {"features": [x, y, z, ...]}
+try:
+    # Read and parse input
+    input_data = json.loads(sys.argv[1])  # {"features": [...]}
+    features = np.array(input_data["features"]).reshape(1, -1)
 
-# Convert input to numpy array
-features = np.array(input_data["features"]).reshape(1, -1)
+    # Predict
+    prediction = model.predict(features)
 
-# Get prediction
-prediction = model.predict(features)
-
-# Return result as JSON
-print(json.dumps({"prediction": prediction.tolist()}))
+    # Output as JSON
+    print(json.dumps({"prediction": int(prediction[0])}))
+except Exception as e:
+    # On error, return JSON-formatted error string to avoid breaking Node.js
+    print(json.dumps({"error": str(e)}))
