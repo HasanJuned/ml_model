@@ -39,7 +39,7 @@ import joblib
 import sys
 import json
 
-# Load the model
+# Load thenj model
 model = joblib.load("logreg_model.pkl")
 
 def predict_heart_disease(input_data):
