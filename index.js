@@ -1,57 +1,31 @@
-const express = require("express");
-const { spawn } = require("child_process");
-const app = express();
-const PORT = 8000;
+const express = require('express');
+const { spawn } = require('child_process');
 
+const app = express();
 app.use(express.json());
 
-app.post("/predict", (req, res) => {
-  // Run the notebook using jupyter nbconvert
-  const py = spawn("jupyter", [
-    "nbconvert",
-    "--to",
-    "notebook",
-    "--execute",
-    "--stdout",
-    "ml_model.ipynb"
-  ]);
+app.post('/predict', (req, res) => {
+  const input = req.body;
 
-  let output = "";
-  let errorOutput = "";
+  const pythonProcess = spawn('python3', ['ml_model.py', JSON.stringify(input)]);
 
-  py.stdout.on("data", (data) => {
-    output += data.toString();
+  let result = '';
+  pythonProcess.stdout.on('data', (data) => {
+    result += data.toString();
   });
 
-  py.stderr.on("data", (data) => {
-    errorOutput += data.toString();
+  pythonProcess.stderr.on('data', (data) => {
+    console.error(`stderr: ${data}`);
   });
 
-  py.on("close", (code) => {
-    if (errorOutput) {
-      console.error("Python stderr:", errorOutput);
+  pythonProcess.on('close', (code) => {
+    if (code !== 0) {
+      return res.status(500).json({ error: 'Model error' });
     }
-
-    // Extract prediction from output (search for JSON)
-    try {
-      const match = output.match(/"prediction":\s*\d+/);
-      if (match) {
-        const prediction = parseInt(match[0].split(":")[1]);
-        res.json({ prediction });
-      } else {
-        res.status(500).json({ error: "Prediction not found in notebook output" });
-      }
-    } catch (err) {
-      console.error("Failed to parse notebook output:", output);
-      res.status(500).json({ error: "Failed to parse notebook output" });
-    }
+    res.json({ result: result.trim() });
   });
 });
 
-app.get("/", (req, res) => {
-  res.send("ML Notebook API is running!");
-});
-
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+app.listen(3000, () => {
+  console.log('Server running on http://localhost:3000');
 });
