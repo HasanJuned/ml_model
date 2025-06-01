@@ -43,6 +43,6 @@ app.post('/predict', (req, res) => {
 });
 
 
-app.listen(3000, () => {
+app.listen(8000, () => {
   console.log('Server running on http://localhost:8000');
 });
