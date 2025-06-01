@@ -25,7 +25,7 @@ try:
     prediction = model.predict(features)
 
     # Output result
-    print(json.dumps({"prediction": int(prediction[0])}))
+    print(json.dumps({"prediction": prediction[0]}))
 
 except Exception as e:
     print(json.dumps({"error": str(e)}))
