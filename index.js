@@ -30,7 +30,7 @@ app.post("/predict", (req, res) => {
 
     try {
       const result = JSON.parse(output);
-      res.json(result);
+      res.json("hi ",result);
     } catch (err) {
       console.error("Failed to parse output:", output);
       res.status(500).json({ error: "Failed to parse prediction output" });
