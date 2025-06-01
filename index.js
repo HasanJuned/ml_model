@@ -6,8 +6,15 @@ const PORT = 8000;
 app.use(express.json());
 
 app.post("/predict", (req, res) => {
-  // Run predict.py which already has hardcoded input
-  const py = spawn("python3", ["predict.py"]);
+  // Run the notebook using jupyter nbconvert
+  const py = spawn("jupyter", [
+    "nbconvert",
+    "--to",
+    "notebook",
+    "--execute",
+    "--stdout",
+    "ml_model.ipynb"
+  ]);
 
   let output = "";
   let errorOutput = "";
@@ -25,20 +32,26 @@ app.post("/predict", (req, res) => {
       console.error("Python stderr:", errorOutput);
     }
 
+    // Extract prediction from output (search for JSON)
     try {
-      const result = JSON.parse(output);
-      res.json(result); // send back prediction
+      const match = output.match(/"prediction":\s*\d+/);
+      if (match) {
+        const prediction = parseInt(match[0].split(":")[1]);
+        res.json({ prediction });
+      } else {
+        res.status(500).json({ error: "Prediction not found in notebook output" });
+      }
     } catch (err) {
-      console.error("Failed to parse output:", output);
-      res.status(500).json({ error: "Failed to parse prediction output" });
+      console.error("Failed to parse notebook output:", output);
+      res.status(500).json({ error: "Failed to parse notebook output" });
     }
   });
 });
 
 app.get("/", (req, res) => {
-  res.send("ML API is running!");
+  res.send("ML Notebook API is running!");
 });
 
 app.listen(PORT, () => {
-  console.log(`Server listening on: http://localhost:${PORT}`);
+  console.log(`Server running at http://localhost:${PORT}`);
 });
