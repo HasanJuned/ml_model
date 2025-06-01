@@ -36,6 +36,26 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 import joblib
 
+import sys
+import json
+
+# Load the model
+model = joblib.load("logreg_model.pkl")
+
+def predict_heart_disease(input_data: dict):
+    df = pd.DataFrame([input_data])
+    prediction = model.predict(df)[0]
+    return "High risk" if prediction == 1 else "Low risk"
+
+if __name__ == "__main__":
+    # Get JSON string from Node.js
+    json_input = sys.argv[1]
+    input_data = json.loads(json_input)
+
+    result = predict_heart_disease(input_data)
+    print(result)
+
+
 df = pd.read_csv('3-Senior_Apu_heart.csv')
 # df = pd.read_csv('3-Senior_Apu_heart.csv')
 # df = df.drop(columns=['id'])  # Drop the 'id' column
